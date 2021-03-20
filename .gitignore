@@ -1,0 +1,8 @@
+.DS_Store
+.idea
+the-lock
+*.exe
+*.dll
+*.so
+*.log
+

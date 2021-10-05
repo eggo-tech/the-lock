@@ -3,9 +3,10 @@
 // void lock(int32 *ptr, int32 old, int32 new)
 TEXT ·lock(SB), NOSPLIT, $0-12
 	MOVL	ptr+0(FP), BX
-	MOVL	old+4(FP), AX
+	MOVL	old+4(FP), DX
 	MOVL	new+8(FP), CX
 again:
+	MOVL    DX, AX
 	LOCK
 	CMPXCHGL	CX, 0(BX)
 	JE		ok

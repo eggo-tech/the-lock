@@ -4,12 +4,17 @@ import (
 	"flag"
 	"github.com/eggo-tech/the-lock/atom"
 	"github.com/eggo-tech/the-lock/spin"
-	"time"
+	"sync"
 )
 
 type Locker interface {
 	Lock()
 	Unlock()
+}
+
+type Waiter interface {
+	Add(n int)
+	Wait()
 }
 
 func main() {
@@ -22,21 +27,28 @@ func main() {
 	} else {
 		l = new(atom.Spin)
 	}
+	var w Waiter
+	w = new(sync.WaitGroup)
 	var n int
 	for i := 0; i < 2; i++ {
-		go routine(i, &n, l, 500*time.Millisecond)
+		w.Add(1)
+		d := 1
+		if i%2 != 0 {
+			d = -1
+		}
+		go routine(i, &n, l, w, 100000000, d)
 	}
-	select {}
+	w.Wait()
+	println(n)
 }
 
-func routine(i int, v *int, l Locker, d time.Duration) {
-	for {
+func routine(i int, v *int, l Locker, w Waiter, c, d int) {
+	defer w.Add(-1)
+	for t := 0; t < c; t++ {
 		func() {
 			l.Lock()
 			defer l.Unlock()
-			*v++
-			println(*v, i)
-			time.Sleep(d)
+			*v += d
 		}()
 	}
 }

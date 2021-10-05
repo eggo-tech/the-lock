@@ -6,7 +6,7 @@ TEXT ·lock(SB), NOSPLIT, $0-16
 	MOVL	old+8(FP), DX
 	MOVL	new+12(FP), CX
 again:
-	MOVL    DX, AX
+	MOVL	DX, AX
 	LOCK
 	CMPXCHGL	CX, 0(BX)
 	JE		ok

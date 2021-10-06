@@ -3,47 +3,41 @@ package main
 import (
 	"flag"
 	"github.com/eggo-tech/the-lock/atom"
-	"github.com/eggo-tech/the-lock/spin"
 	"sync"
 )
 
+// Locker ...
 type Locker interface {
 	Lock()
 	Unlock()
 }
 
+// Waiter ...
 type Waiter interface {
 	Add(n int)
 	Wait()
 }
 
 func main() {
-	var p bool
-	flag.BoolVar(&p, "pause", false, "with pause instruction")
-	flag.IntVar(&atom.Loop, "loop", 0, "pause loop times")
+	var p int
+	flag.IntVar(&p, "pause", 0, "pause loop times")
+	var c int
+	flag.IntVar(&c, "concurrency", 2, "goroutine count")
+	var t int
+	flag.IntVar(&t, "times", 100000000, "for loop times")
 	flag.Parse()
-	var l Locker
-	if p {
-		l = new(spin.Spin)
-	} else {
-		l = new(atom.Spin)
-	}
-	var w Waiter
-	w = new(sync.WaitGroup)
+	var l Locker = &atom.Spin{0, int32(p)}
+	var w Waiter = new(sync.WaitGroup)
 	var n int
-	for i := 0; i < 2; i++ {
+	for i := 0; i < c; i++ {
 		w.Add(1)
-		d := 1
-		if i%2 != 0 {
-			d = -1
-		}
-		go routine(i, &n, l, w, 100000000, d)
+		go routine(&n, l, w, 100000000, 1+-i%2*2)
 	}
 	w.Wait()
 	println(n)
 }
 
-func routine(i int, v *int, l Locker, w Waiter, c, d int) {
+func routine(v *int, l Locker, w Waiter, c, d int) {
 	defer w.Add(-1)
 	for t := 0; t < c; t++ {
 		func() {

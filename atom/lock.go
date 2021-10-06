@@ -4,20 +4,21 @@ import (
 	"sync/atomic"
 )
 
-type Spin int32
+// Spin lock
+type Spin [2]int32
 
-var Loop int
-
+// Lock ...
 func (l *Spin) Lock() {
-	for !atomic.CompareAndSwapInt32((*int32)(l), 0, 1) {
-		if Loop > 0 {
-			pause(Loop)
+	for !atomic.CompareAndSwapInt32(&l[0], 0, 1) {
+		if c := l[1]; c > 0 {
+			pause(int(c))
 		}
 	}
 }
 
+// Unlock ...
 func (l *Spin) Unlock() {
-	atomic.StoreInt32((*int32)(l), 0)
+	atomic.StoreInt32(&l[0], 0)
 }
 
 func pause(cnt int)

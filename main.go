@@ -20,6 +20,7 @@ type Waiter interface {
 func main() {
 	var p bool
 	flag.BoolVar(&p, "pause", false, "with pause instruction")
+	flag.IntVar(&atom.Loop, "loop", 0, "pause loop times")
 	flag.Parse()
 	var l Locker
 	if p {

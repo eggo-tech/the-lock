@@ -6,9 +6,13 @@ import (
 
 type Spin int32
 
+var Loop int
+
 func (l *Spin) Lock() {
 	for !atomic.CompareAndSwapInt32((*int32)(l), 0, 1) {
-		pause(10)
+		if Loop > 0 {
+			pause(Loop)
+		}
 	}
 }
 

@@ -31,7 +31,7 @@ func main() {
 	var n int
 	for i := 0; i < c; i++ {
 		w.Add(1)
-		go routine(&n, l, w, 100000000, 1+-i%2*2)
+		go routine(&n, l, w, t, 1-i%2*2)
 	}
 	w.Wait()
 	println(n)
